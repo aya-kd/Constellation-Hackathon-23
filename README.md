@@ -15,7 +15,14 @@ This project serves as our entry for Chainlink's **Constellation Hackathon 2023*
 # 2. Description
 It is a decentralized application (Dapp) designed to assist refugees in securing rental expenses in the countries where they have sought refuge. Users have the option to donate funds to support refugees in paying their rent, while property owners can list their properties for rent.
 
-# 3. Technologies
+# 3. Technologies  
+![Solidity](https://img.shields.io/badge/Solidity-e6e6e6?style=for-the-badge&logo=solidity&logoColor=black)
+![Chainlink](https://img.shields.io/badge/Chainlink-375BD2?style=for-the-badge&logo=Chainlink&logoColor=white)
+![HTML3](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![NodeJS](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
+![VSCode](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)  
 Tech stack used in this project:  
 **Smart Contract**  
 - Solidity  
