@@ -22,28 +22,28 @@ const Header = () => {
       
           <ul className="options">
             <li className="filter">
-              <input list='data1' onChange={(e)=> setVal(e.target.value)} placeholder='COUNTRY'/>
+              <input list='data1' onChange={(e)=> setVal(e.target.value)} placeholder='COUNTRY' style={{ color: 'white' }}/>
                 <datalist id='data1'>
                   {data1.map((op1)=> <option>{op1}</option>)}
                 </datalist>
                 
             </li>
             <li className="filter">
-              <input list='data2' onChange={(e)=> setVal2(e.target.value)} placeholder='CITY'/>
+              <input list='data2' onChange={(e)=> setVal2(e.target.value)} placeholder='CITY' style={{ color: 'white' }}/>
                 <datalist id='data2'>
                   {data2.map((op2)=> <option>{op2}</option>)}
                 </datalist>
                 
             </li>
             <li className="filter">
-              <input list='data3' onChange={(e)=> setVal3(e.target.value)} placeholder='PRICE'/>
+              <input list='data3' onChange={(e)=> setVal3(e.target.value)} placeholder='PRICE' style={{ color: 'white' }}/>
                 <datalist id='data3'>
                   {data3.map((op3)=> <option>{op3}</option>)}
                 </datalist>
                
             </li>
             <li className="filter">
-              <input list='data4' onChange={(e)=> setVal4(e.target.value)} placeholder='STATE'/>
+              <input list='data4' onChange={(e)=> setVal4(e.target.value)} placeholder='STATE'style={{ color: 'white' }}/>
                 <datalist id='data4'>
                   {data4.map((op4)=> <option>{op4}</option>)}
                 </datalist>
