@@ -3,6 +3,8 @@ import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentTe
 import Box from '@mui/material/Box';
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import contract from "../../contracts/Havon.json";
+import { ethers } from 'ethers/dist/ethers.esm.min.js';
 
 import './properties.scss';
 import pic1 from '../../assets/pic1.jpg';
@@ -55,7 +57,7 @@ const Data = [
     id:3,
     imgSrc: PIC3,
     PriceTitle: 'USD $300',
-    available: 'Occupied',
+    available: 'Requested',
     location: ' 55 Rue du Faubourg Saint-Antoine, Paris, France',
     propType: 'Condominium',
     rooms: '3 rooms',
@@ -99,7 +101,7 @@ const Data = [
     id:7,
     imgSrc: PIC7,
     PriceTitle: 'USD $500',
-    available: 'Available',
+    available: 'Occupied',
     location: 'Chiyoda, Tokyo, Japan',
     propType: 'Cottage',
     rooms: '3 rooms',
@@ -142,7 +144,699 @@ const Data = [
 ]
 
 
+const contractAddress = "0xB0724c4Ee7C57d2A2Ed1061E240f67047E8FDc5e";
+const abi = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "OnlySimulatedBackend",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "AccountCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "donor",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "DonationReceived",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "country",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "city",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "addressLine",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "propertyType",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "rooms",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "months",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum Haven.PropertyStatus",
+						"name": "status",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startRentTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "currentRefugee",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"indexed": true,
+				"internalType": "struct Haven.Property",
+				"name": "property",
+				"type": "tuple"
+			}
+		],
+		"name": "PropertyListed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "enum Haven.PropertyStatus",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"name": "PropertyStatusChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "RentTimeEnded",
+		"type": "event"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [],
+		"name": "DAY",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MONTHS",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_firstName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_lastName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_addressLine",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_phoneNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "_isRefugee",
+				"type": "bool"
+			}
+		],
+		"name": "createAccount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "ID",
+				"type": "uint256"
+			}
+		],
+		"name": "donate",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "ID",
+				"type": "uint256"
+			}
+		],
+		"name": "endRent",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "getAccount",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "firstName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "lastName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "addressLine",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "email",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "phoneNumber",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "isRefugee",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct Haven.Account",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "getDonations",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getProperty",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "country",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "city",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "addressLine",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "propertyType",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "rooms",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "months",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum Haven.PropertyStatus",
+						"name": "status",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startRentTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "currentRefugee",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"internalType": "struct Haven.Property",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastTimeStamp",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_country",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_city",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_addressLine",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_propertyType",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_rooms",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_price",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_months",
+				"type": "string"
+			}
+		],
+		"name": "listProperty",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "ID",
+				"type": "uint256"
+			}
+		],
+		"name": "request",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_accounts",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "firstName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "lastName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "addressLine",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "email",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "phoneNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "isRefugee",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_donations",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "s_properties",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "country",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "city",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "addressLine",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "propertyType",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rooms",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "months",
+				"type": "uint256"
+			},
+			{
+				"internalType": "enum Haven.PropertyStatus",
+				"name": "status",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "startRentTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "currentRefugee",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "s_propertyId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "numString",
+				"type": "string"
+			}
+		],
+		"name": "stringToNumber",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+];
+
+
 const Properties = () => {
+  
+
+  const [country1, setCountry1] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [propertyType, setPrpertyType] = useState("");
+  const [rooms, setRooms] = useState("");
+  const [price, setPrice] = useState("");
+  const [months, setMonths] = useState("");
+
 
   const [openApplyDialog, setOpenApplyDialog] = useState(false);
   const [openVerificationDialog, setOpenVerificationDialog] = useState(false);
@@ -197,6 +891,49 @@ async function requestAccount(){
     console.log('metamask not detected.');
   }
 }
+
+
+const listProperty = async () => {
+    
+  const ethers = require('ethers');
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const havenContract = new ethers.Contract(contractAddress, abi, signer);
+  const transaction = await havenContract.listProperty(
+      country1,
+      city,
+      address,
+      propertyType,
+      rooms,
+      price,
+      months
+    );
+
+};
+
+const donate = async () => {
+    
+  const ethers = require('ethers');
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const havenContract = new ethers.Contract(contractAddress, abi, signer);
+  const transaction = await havenContract.donate(0);
+
+
+};
+
+const request = async () => {
+    
+  const ethers = require('ethers');
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const havenContract = new ethers.Contract(contractAddress, abi, signer);
+  const transaction = await havenContract.request(0);
+
+
+};
+
+
   return (
     <section className='haven__prop section'>
       <div className="sec__title">
@@ -284,18 +1021,18 @@ async function requestAccount(){
                 }}
               >
                 <MenuItem variant="outlined" value="Country">Country</MenuItem>
-                <MenuItem value="xs">Algeria</MenuItem>
-                <MenuItem value="md">UK</MenuItem>
-                <MenuItem value="lg">France</MenuItem>
-                <MenuItem value="xl">Turkey</MenuItem>
-                <MenuItem value="xs">Albania</MenuItem>
-                <MenuItem value="md">USA</MenuItem>
-                <MenuItem value="lg">Spain</MenuItem>
-                <MenuItem value="xl">Maroco</MenuItem>
-                <MenuItem value="xs">Libia</MenuItem>
-                <MenuItem value="md">Soudi Arabia</MenuItem>
-                <MenuItem value="lg">Italy</MenuItem>
-                <MenuItem value="xl">Canada</MenuItem>
+                <MenuItem value="ab">Algeria</MenuItem>
+                <MenuItem value="cd">UK</MenuItem>
+                <MenuItem value="ef">France</MenuItem>
+                <MenuItem value="gh">Turkey</MenuItem>
+                <MenuItem value="ij">Albania</MenuItem>
+                <MenuItem value="kl">USA</MenuItem>
+                <MenuItem value="mn">Spain</MenuItem>
+                <MenuItem value="op">Maroco</MenuItem>
+                <MenuItem value="qr">Libia</MenuItem>
+                <MenuItem value="st">Soudi Arabia</MenuItem>
+                <MenuItem value="uv">Italy</MenuItem>
+                <MenuItem value="wx">Canada</MenuItem>
               </Select>
             </FormControl>
             
@@ -362,7 +1099,7 @@ async function requestAccount(){
 
                   
                     {/* ... (your buttons) */}
-                    <Button onClick={closeApplyPopup} className='verity_bottun' variant="contained" 
+                    <Button onClick={listProperty} className='verity_bottun' variant="contained" 
                     sx={{
                       
                       alignItems: "center",
@@ -416,8 +1153,8 @@ async function requestAccount(){
                 </div>
               </div>
               <div className='btns'>
-                <button id="connectwallet" className='btn' onClick={requestAccount}>Donate</button>
-                <button className='btn'>request</button>
+                <button id="connectwallet" className='btn' onClick={donate}>Donate</button>
+                <button className='btn' onClick={request}>request</button>
               </div>
             </div>
             )
